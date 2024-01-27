@@ -71,10 +71,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "DDCode-WEB:build:production"
+              "buildTarget": "DDCode-WEB:build:production"
             },
             "development": {
-              "browserTarget": "DDCode-WEB:build:development"
+              "buildTarget": "DDCode-WEB:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -82,7 +82,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "DDCode-WEB:build"
+            "buildTarget": "DDCode-WEB:build"
           }
         },
         "test": {
