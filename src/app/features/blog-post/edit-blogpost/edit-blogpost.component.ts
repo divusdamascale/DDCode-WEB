@@ -2,8 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BlogPostService } from '../services/blog-post.service';
 import { CategoryService } from '../../category/services/category.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { BlogPost } from '../models/blog-post.model';
+import { Category } from '../../category/models/category.model';
+import { UpdateBlogpostRequest } from '../models/update-blogpost-request.model';
 
 @Component({
   selector: 'app-edit-blogpost',
@@ -14,7 +16,11 @@ export class EditBlogpostComponent implements OnInit, OnDestroy {
   id: string | null = null;
   paramsSubscription?: Subscription;
   getBlogPostByIdSubscription?: Subscription;
+  updateBlogPostSubscription?: Subscription;
+  deleteBlogPostSubscription?: Subscription;
   model?: BlogPost;
+  categories$?: Observable<Category[]>;
+  selectedCategories: string[] = [];
 
   constructor(
     private router: Router,
@@ -23,6 +29,8 @@ export class EditBlogpostComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService
   ) {}
   ngOnInit(): void {
+    this.categories$ = this.categoryService.getAllCategories();
+
     this.paramsSubscription = this.route.paramMap.subscribe({
       next: (params) => {
         this.id = params.get('id');
@@ -32,6 +40,7 @@ export class EditBlogpostComponent implements OnInit, OnDestroy {
             .subscribe({
               next: (response) => {
                 this.model = response;
+                this.selectedCategories = response.categories.map((x) => x.id);
               },
             });
         }
@@ -41,7 +50,41 @@ export class EditBlogpostComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.paramsSubscription?.unsubscribe();
     this.getBlogPostByIdSubscription?.unsubscribe();
+    this.updateBlogPostSubscription?.unsubscribe();
+    this.deleteBlogPostSubscription?.unsubscribe();
   }
 
-  onFormSubmit(): void {}
+  onFormSubmit(): void {
+    if (this.model && this.id) {
+      var updateBlogPost: UpdateBlogpostRequest = {
+        author: this.model.author,
+        categories: this.selectedCategories,
+        content: this.model.content,
+        featuredImageUrl: this.model.featuredImageUrl,
+        isVisible: this.model.isVisible,
+        publishedDate: this.model.publishedDate,
+        shortDescription: this.model.shortDescription,
+        title: this.model.title,
+        urlHandle: this.model.urlHandle,
+      };
+      this.updateBlogPostSubscription = this.blogpostService
+        .updateBlogPost(this.id, updateBlogPost)
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/admin/blogposts']);
+          },
+        });
+    }
+  }
+  onDelete(): void {
+    if (this.id) {
+      this.deleteBlogPostSubscription = this.blogpostService
+        .deleteBlogPost(this.id)
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/admin/blogposts']);
+          },
+        });
+    }
+  }
 }
