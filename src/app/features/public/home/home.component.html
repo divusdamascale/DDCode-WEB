@@ -3,7 +3,8 @@
     <div class="row align-items-stretch">
       <ng-container *ngIf="blogposts$ | async as blogs; else error">
         <div class="col-12 col-md-4 mb-3" *ngFor="let blog of blogs">
-          <div class="card h-100">
+          <!-- <div > -->
+          <div *ngIf="blog.isVisible" class="card h-100">
             <img
               [src]="blog.featuredImageUrl"
               [alt]="blog.title"
@@ -23,13 +24,13 @@
             </div>
           </div>
         </div>
+        <!-- </div> -->
       </ng-container>
       <ng-template #error>
-        <div class="alert alert-danger" role="alert">
-          <h4 class="alert-heading">Error</h4>
-          <p>
-            There was an error loading the blog posts. Please try again later.
-          </p>
+        <div class="text-center mt-5">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
         </div>
       </ng-template>
     </div>

@@ -7,7 +7,7 @@
     >
   </div>
 
-  <ng-container *ngIf="blogpost$ | async as blogPosts">
+  <ng-container *ngIf="blogpost$ | async as blogPosts; else loader">
     <table class="table table-bordered mt-3">
       <thead>
         <tr>
@@ -39,4 +39,11 @@
       </tbody>
     </table>
   </ng-container>
+  <ng-template #loader>
+    <div class="text-center mt-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </ng-template>
 </div>
