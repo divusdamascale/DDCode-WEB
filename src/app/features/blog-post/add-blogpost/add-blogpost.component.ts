@@ -5,6 +5,7 @@ import { Observable, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { CategoryService } from '../../category/services/category.service';
 import { Category } from '../../category/models/category.model';
+import { ImageService } from 'src/app/shared/components/image-selector/image.service';
 
 @Component({
   selector: 'app-add-blogpost',
@@ -15,11 +16,14 @@ export class AddBlogpostComponent implements OnDestroy, OnInit {
   model: AddBlogPost;
   addBlogPostSubscription?: Subscription;
   categories$?: Observable<Category[]>;
+  isImageSelectorVisible: boolean = false;
+  selectedIMageSubscription?: Subscription;
 
   constructor(
     private blogPostService: BlogPostService,
     private router: Router,
-    private categoriesService: CategoryService
+    private categoriesService: CategoryService,
+    private imageService: ImageService
   ) {
     this.model = {
       title: '',
@@ -35,9 +39,18 @@ export class AddBlogpostComponent implements OnDestroy, OnInit {
   }
   ngOnInit(): void {
     this.categories$ = this.categoriesService.getAllCategories();
+    this.selectedIMageSubscription = this.imageService
+      .onSelectImage()
+      .subscribe({
+        next: (response) => {
+          this.model.featuredImageUrl = response.url;
+          this.isImageSelectorVisible = false;
+        },
+      });
   }
   ngOnDestroy(): void {
     this.addBlogPostSubscription?.unsubscribe();
+    this.selectedIMageSubscription?.unsubscribe();
   }
   onFormSubmit() {
     this.addBlogPostSubscription = this.blogPostService
@@ -45,5 +58,12 @@ export class AddBlogpostComponent implements OnDestroy, OnInit {
       .subscribe((response) => {
         this.router.navigateByUrl('/admin/blogposts');
       });
+  }
+
+  openImageSelector(): void {
+    this.isImageSelectorVisible = true;
+  }
+  closeImageSelector(): void {
+    this.isImageSelectorVisible = false;
   }
 }
